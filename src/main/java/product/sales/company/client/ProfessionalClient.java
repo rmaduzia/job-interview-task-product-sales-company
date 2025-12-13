@@ -1,5 +1,6 @@
 package product.sales.company.client;
 
+import java.math.BigDecimal;
 import java.util.Optional;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
@@ -16,20 +17,20 @@ public final class ProfessionalClient extends Client {
     private final String companyName;
     private final Optional<String> intraCommunityVatNumber;
     private final String registrationNumber;
-    private final double annualRevenue;
+    private final BigDecimal annualRevenue;
 
-    private static final int HIGH_REVENUE_THRESHOLD = 10_000_000;
+    private static final BigDecimal HIGH_REVENUE_THRESHOLD = BigDecimal.valueOf(10_000_000);
 
     public ProfessionalClient(int clientId,
         String companyName,
         String intraCommunityVatNumber,
         String registrationNumber,
-        double annualRevenue) {
+        BigDecimal annualRevenue) {
         super(clientId);
 
         Validate.notBlank(companyName, "companyName must not be blank");
         Validate.notBlank(registrationNumber, "registrationNumber must not be blank");
-        Validate.isTrue(annualRevenue >= 0d, "annualRevenue must be >= 0");
+        Validate.isTrue(annualRevenue.compareTo(BigDecimal.ZERO) >= 0d, "annualRevenue must be >= 0");
 
         this.companyName = companyName;
         this.intraCommunityVatNumber = Optional.ofNullable(
@@ -40,7 +41,7 @@ public final class ProfessionalClient extends Client {
 
     @Override
     public PricingStrategy getPricingStrategy() {
-        if (this.annualRevenue > HIGH_REVENUE_THRESHOLD) {
+        if (annualRevenue.compareTo(HIGH_REVENUE_THRESHOLD) > 0) {
             return new PricingStrategy.ProfessionalHighRevenue();
         } else {
             return new PricingStrategy.ProfessionalLowRevenue();

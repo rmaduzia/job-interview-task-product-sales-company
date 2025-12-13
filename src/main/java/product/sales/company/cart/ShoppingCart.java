@@ -1,24 +1,23 @@
 package product.sales.company.cart;
 
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
+import java.math.BigDecimal;
+import java.math.RoundingMode;
+import lombok.extern.slf4j.Slf4j;
 import java.util.ArrayList;
 import java.util.List;
 import product.sales.company.client.Client;
 import product.sales.company.pricing.PricingStrategy;
 import product.sales.company.product.ProductType;
 
+@Slf4j
 public class ShoppingCart {
-    private static final Logger logger = LoggerFactory.getLogger(ShoppingCart.class);
 
     private final Client client;
     private final List<CartItem> items = new ArrayList<>();
 
     public ShoppingCart(Client client) {
         this.client = client;
-        logger.info("Created shopping cart for client ID {}", client.getClientId());
+        log.info("Created shopping cart for client ID {}", client.getClientId());
     }
 
     public void addItem(ProductType type, int quantity) {
@@ -26,21 +25,23 @@ public class ShoppingCart {
             throw new IllegalArgumentException("Quantity must be positive");
         }
         items.add(new CartItem(type, quantity));
-        logger.info("Added {} x {} to cart", quantity, type);
+        log.info("Added {} x {} to cart", quantity, type);
     }
 
-    public double calculateTotal() {
-        logger.info("Calculating total for client {}", client.getClientId());
-        double total = 0.0;
+    public BigDecimal calculateTotal() {
+        log.info("Calculating total for client {}", client.getClientId());
+        BigDecimal total = BigDecimal.ZERO;
         PricingStrategy strategy = client.getPricingStrategy();
 
         for (CartItem item : items) {
-            double unitPrice = strategy.getUnitPrice(item.type());
-            logger.info("  {} x {} at {} each", item.quantity(), item.type(), unitPrice);
-            total += unitPrice * item.quantity();
+            BigDecimal unitPrice = strategy.getUnitPrice(item.type());
+            BigDecimal line = unitPrice.multiply(BigDecimal.valueOf(item.quantity()));
+            log.debug("Line: {} x {} = {}", item.quantity(), unitPrice, line);
+            total = total.add(line);
         }
 
-        logger.info("Total amount: {}", total);
-        return total;
+        BigDecimal rounded = total.setScale(2, RoundingMode.HALF_EVEN);
+        log.info("Total amount: {}", rounded);
+        return rounded;
     }
 }

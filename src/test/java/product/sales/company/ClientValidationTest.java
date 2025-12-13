@@ -2,6 +2,7 @@ package product.sales.company;
 
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
+import java.math.BigDecimal;
 import org.junit.jupiter.api.Test;
 import product.sales.company.cart.CartItem;
 import product.sales.company.client.IndividualClient;
@@ -19,11 +20,11 @@ public class ClientValidationTest {
     @Test
     void professionalClientInvalidShouldFail() {
         assertThrows(IllegalArgumentException.class, () ->
-            new ProfessionalClient(2, "", null, "REG-1", 1000d));
+            new ProfessionalClient(2, "", null, "REG-1", BigDecimal.valueOf(1000d)));
         assertThrows(IllegalArgumentException.class, () ->
-            new ProfessionalClient(2, "Company", null, "", 1000d));
+            new ProfessionalClient(2, "Company", null, "", BigDecimal.valueOf(1000d)));
         assertThrows(IllegalArgumentException.class, () ->
-            new ProfessionalClient(2, "Company", null, "REG-1", -1d));
+            new ProfessionalClient(2, "Company", null, "REG-1", BigDecimal.valueOf(-1d)));
     }
 
     @Test
